@@ -1,16 +1,28 @@
 ---
-
+import Layout from "../layouts/Layout.astro";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout title="Portfolio">
+	<div class="flex flex-col items-center justify-center h-screen">
+		<div class="max-w-[80%] mx-auto">
+			<div class="flex flex-col md:flex-row items-center justify-center gap-6">
+				<!-- Container for positioning with height that accounts for image -->
+				<div class="relative w-[360px] h-[250px] flex justify-center">
+					<!-- True ellipse using specific border-radius -->
+					<div class="bg-black w-[360px] h-[38px] absolute bottom-0" style="border-radius: 50% / 100%;"></div>
+					
+					<!-- Profile image rising from top of ellipse -->
+					<img 
+						src="https://res.cloudinary.com/neon-flights/image/upload/c_crop,g_south,h_0.9/v1753641264/personal-website/profilpicsquare_mxceuo.png" 
+						alt="George Fairbairn profile picture" 
+						class="w-[240px] h-[240px] absolute left-1/2 -translate-x-1/2 bottom-0 z-10"
+					/>
+				</div>
+				<h1 class="text-4xl md:text-5xl lg:text-6xl font-hero text-center md:text-left">
+					<span class="block">George</span>
+					<span class="block">Fairbairn</span>
+				</h1>
+			</div>
+		</div>
+	</div>
+</Layout>
