@@ -3,30 +3,48 @@
   /* Default theme - Violet */
   --theme-bg: #ddd6fe; /* violet-200 */
   --theme-text: #1f2937; /* gray-800 */
+  --theme-accent-1: #c4b5fd; /* violet-300 */
+  --theme-accent-2: #a78bfa; /* violet-400 */
+  --theme-card-bg: #f5f3ff; /* violet-50 */
 }
 
 /* Theme definitions using data-theme attribute */
 html[data-theme="violet"] {
   --theme-bg: #ddd6fe; /* violet-200 */
   --theme-text: #1f2937; /* gray-800 */
+  --theme-accent-1: #c4b5fd; /* violet-300 */
+  --theme-accent-2: #a78bfa; /* violet-400 */
+  --theme-card-bg: #f5f3ff; /* violet-50 */
 }
 
 html[data-theme="rose"] {
   --theme-bg: #fecdd3; /* rose-200 */
   --theme-text: #1f2937; /* gray-800 */
+  --theme-accent-1: #fda4af; /* rose-300 */
+  --theme-accent-2: #fb7185; /* rose-400 */
+  --theme-card-bg: #fff1f2; /* rose-50 */
 }
 
 html[data-theme="teal"] {
   --theme-bg: #99f6e4; /* teal-200 */
   --theme-text: #1f2937; /* gray-800 */
+  --theme-accent-1: #5eead4; /* teal-300 */
+  --theme-accent-2: #2dd4bf; /* teal-400 */
+  --theme-card-bg: #f0fdfa; /* teal-50 */
 }
 
 html[data-theme="sky"] {
   --theme-bg: #bae6fd; /* sky-200 */
   --theme-text: #1f2937; /* gray-800 */
+  --theme-accent-1: #7dd3fc; /* sky-300 */
+  --theme-accent-2: #38bdf8; /* sky-400 */
+  --theme-card-bg: #f0f9ff; /* sky-50 */
 }
 
 html[data-theme="orange"] {
   --theme-bg: #fed7aa; /* orange-200 */
   --theme-text: #1f2937; /* gray-800 */
+  --theme-accent-1: #fdba74; /* orange-300 */
+  --theme-accent-2: #fb923c; /* orange-400 */
+  --theme-card-bg: #fff7ed; /* orange-50 */
 } 
