@@ -1,0 +1,32 @@
+/* Define theme colors */
+:root {
+  /* Default theme - Violet */
+  --theme-bg: #ddd6fe; /* violet-200 */
+  --theme-text: #1f2937; /* gray-800 */
+}
+
+/* Theme definitions using data-theme attribute */
+html[data-theme="violet"] {
+  --theme-bg: #ddd6fe; /* violet-200 */
+  --theme-text: #1f2937; /* gray-800 */
+}
+
+html[data-theme="rose"] {
+  --theme-bg: #fecdd3; /* rose-200 */
+  --theme-text: #1f2937; /* gray-800 */
+}
+
+html[data-theme="teal"] {
+  --theme-bg: #99f6e4; /* teal-200 */
+  --theme-text: #1f2937; /* gray-800 */
+}
+
+html[data-theme="sky"] {
+  --theme-bg: #bae6fd; /* sky-200 */
+  --theme-text: #1f2937; /* gray-800 */
+}
+
+html[data-theme="orange"] {
+  --theme-bg: #fed7aa; /* orange-200 */
+  --theme-text: #1f2937; /* gray-800 */
+} 

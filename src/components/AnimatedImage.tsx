@@ -4,9 +4,10 @@ interface AnimatedImageProps {
   src: string;
   alt: string;
   className?: string;
+  delay?: number;
 }
 
-export default function AnimatedImage({ src, alt, className = "" }: AnimatedImageProps) {
+export default function AnimatedImage({ src, alt, className = "", delay = 0.2 }: AnimatedImageProps) {
   return (
     <motion.img 
       src={src}
@@ -17,7 +18,7 @@ export default function AnimatedImage({ src, alt, className = "" }: AnimatedImag
       transition={{
         duration: 0.8,
         ease: "easeOut",
-        delay: 0.2
+        delay
       }}
     />
   );

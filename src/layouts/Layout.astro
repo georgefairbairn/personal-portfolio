@@ -5,9 +5,10 @@ interface Props {
 
 const { title } = Astro.props;
 import "../styles/global.css";
+import ThemeIcon from "../components/ThemeIcon";
 ---
 
-<html lang="en">
+<html lang="en" data-theme="violet">
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -23,9 +24,20 @@ import "../styles/global.css";
 		</style>
 		<title>{title}</title>
 	</head>
-	<body class="bg-violet-200">
+	<body style="background-color: var(--theme-bg); color: var(--theme-text); transition: background-color 0.3s ease, color 0.3s ease;">
+		<div class="fixed top-4 right-4 z-50">
+			<ThemeIcon client:load />
+		</div>
 		<main>
 			<slot />
 		</main>
+
+		<script>
+			// Initialize theme from localStorage on page load
+			document.addEventListener('DOMContentLoaded', () => {
+				const savedTheme = localStorage.getItem('theme') || 'violet';
+				document.documentElement.setAttribute('data-theme', savedTheme);
+			});
+		</script>
 	</body>
 </html> 

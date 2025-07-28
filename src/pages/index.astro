@@ -1,7 +1,8 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import AnimatedText from "../components/AnimatedText.jsx";
-import AnimatedImage from "../components/AnimatedImage.jsx";
+import AnimatedText from "../components/AnimatedText.tsx";
+import AnimatedImage from "../components/AnimatedImage.tsx";
+import { motion } from "framer-motion";
 ---
 
 <Layout title="Portfolio">
@@ -10,25 +11,47 @@ import AnimatedImage from "../components/AnimatedImage.jsx";
 			<div class="flex flex-col md:flex-row items-center justify-center gap-6">
 				<!-- Container for positioning with height that accounts for image -->
 				<div class="relative w-[360px] h-[250px] flex justify-center">
-					<!-- Bottom ellipse (behind image) -->
-					<div class="bg-black w-[360px] h-[38px] absolute bottom-0 z-[5]" style="border-radius: 50% / 100%;"></div>
+					<!-- Bottom ellipse (behind image) - Will be animated with delay -->
+					<motion.div 
+						className="bg-black w-[360px] h-[38px] absolute bottom-0 z-[5]" 
+						style={{ borderRadius: "50% / 100%" }}
+						initial={{ opacity: 0, scale: 0.8 }}
+						animate={{ opacity: 1, scale: 1 }}
+						transition={{ 
+							duration: 0.5, 
+							delay: 0.8, 
+							ease: "easeOut" 
+						}}
+						client:load
+					></motion.div>
 					
 					<!-- Image container with overflow hidden to hide image until it reaches the ellipse -->
 					<div class="absolute bottom-0 w-[240px] h-[240px] overflow-hidden z-10">
-						<!-- Profile image rising from bottom -->
+						<!-- Profile image rising from bottom - with increased delay -->
 						<AnimatedImage 
-							src="https://res.cloudinary.com/neon-flights/image/upload/c_crop,g_south,h_0.9/v1753641264/personal-website/profilpicsquare_mxceuo.png" 
+							src="https://res.cloudinary.com/neon-flights/image/upload/c_crop,g_south,h_0.9/v1753641264/personal-website/profilepiccolor_g4p5t3.png" 
 							alt="George Fairbairn profile picture" 
 							className="w-[240px] h-[240px] absolute left-1/2 -translate-x-1/2 bottom-0"
+							delay={1.2}
 							client:load
 						/>
 					</div>
 					
 					<!-- Clipping mask for the top half of ellipse (in front of image) -->
-					<div class="absolute bottom-0 w-[360px] h-[19px] overflow-hidden">
+					<motion.div 
+						className="absolute bottom-0 w-[360px] h-[19px] overflow-hidden"
+						initial={{ opacity: 0, scale: 0.8 }}
+						animate={{ opacity: 1, scale: 1 }}
+						transition={{ 
+							duration: 0.5, 
+							delay: 0.8, 
+							ease: "easeOut" 
+						}}
+						client:load
+					>
 						<!-- Top half of ellipse using negative margin to position it correctly -->
 						<div class="bg-black w-[360px] h-[38px] mt-[-19px]" style="border-radius: 50% / 100%;"></div>
-					</div>
+					</motion.div>
 				</div>
 				<h1 class="text-4xl md:text-5xl lg:text-6xl font-hero text-center md:text-left">
 					<AnimatedText text="George" client:load />
