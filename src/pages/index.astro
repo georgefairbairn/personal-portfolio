@@ -2,11 +2,12 @@
 import Layout from "../layouts/Layout.astro";
 import AnimatedText from "../components/AnimatedText.tsx";
 import AnimatedImage from "../components/AnimatedImage.tsx";
+import ScrollIndicator from "../components/ScrollIndicator.tsx";
 import { motion } from "framer-motion";
 ---
 
 <Layout title="Portfolio">
-	<div class="flex flex-col items-center justify-center h-screen">
+	<div class="flex flex-col items-center justify-center h-screen relative">
 		<div class="max-w-[80%] mx-auto">
 			<div class="flex flex-col md:flex-row items-center justify-center gap-6">
 				<!-- Container for positioning with height that accounts for image -->
@@ -59,5 +60,6 @@ import { motion } from "framer-motion";
 				</h1>
 			</div>
 		</div>
+		<ScrollIndicator client:load />
 	</div>
 </Layout>
