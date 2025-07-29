@@ -4,6 +4,7 @@ import AnimatedText from "../components/AnimatedText.tsx";
 import AnimatedImage from "../components/AnimatedImage.tsx";
 import ScrollIndicator from "../components/ScrollIndicator.tsx";
 import { motion } from "framer-motion";
+import { CardGroup } from "../components/CardGroup";
 ---
 
 <Layout title="Portfolio">
@@ -64,44 +65,62 @@ import { motion } from "framer-motion";
 		<ScrollIndicator client:load />
 	</div>
 
-	<!-- Additional Content Sections -->
-	<section class="py-24 px-6">
-		<div class="max-w-4xl mx-auto">
-			<h2 class="text-3xl md:text-4xl font-heading mb-8">About Me</h2>
-			<div class="space-y-6 text-lg">
-				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris eget justo sed nisi tincidunt eleifend. Nullam eget felis euismod, euismod nisl eget, tincidunt nisi. Nulla facilisi.</p>
-				<p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Cras vitae metus ut nisl consequat dapibus vel non augue.</p>
+	<!-- Career Section -->
+	<section class="py-16 px-6">
+		<div class="max-w-6xl mx-auto">
+			<div class="flex justify-center mb-32 md:mb-42">
+				<CardGroup 
+					cards={[
+						{
+							id: "octopus",
+							image: "https://res.cloudinary.com/neon-flights/image/upload/v1753733604/personal-website/octopus_orupdn.webp",
+							alt: "Octopus",
+							rotate: 7,
+							hoverText: "Octopus Energy"
+						},
+						{
+							id: "color",
+							image: "https://res.cloudinary.com/neon-flights/image/upload/v1753733604/personal-website/color_logo_transparent_k3st7h.png",
+							alt: "Color Logo",
+							rotate: -13,
+							hoverText: "Trinitatum"
+						},
+						{
+							id: "convergence",
+							image: "https://res.cloudinary.com/neon-flights/image/upload/v1753733604/personal-website/convergence_concepts_inc_logo_wexx9k.jpg",
+							alt: "Convergence Concepts Inc Logo",
+							rotate: 19,
+							hoverText: "Convergence Concepts"
+						},
+						{
+							id: "slack",
+							image: "https://res.cloudinary.com/neon-flights/image/upload/v1753733604/personal-website/slack_logo_vjzot8.png",
+							alt: "Slack Logo",
+							hoverText: "Slack"
+						}
+					]}
+					client:load
+				/>
 			</div>
+			<h2 class="text-5xl md:text-[64px] font-heading text-center">CAREER</h2>
 		</div>
 	</section>
 
-	<section class="py-24 px-6 bg-opacity-10" style="background-color: var(--theme-accent-1);">
-		<div class="max-w-4xl mx-auto">
-			<h2 class="text-3xl md:text-4xl font-heading mb-8">Projects</h2>
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-				{[1, 2, 3, 4].map(() => (
-					<div class="p-6 rounded-lg" style="background-color: var(--theme-card-bg); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-						<h3 class="text-xl font-heading mb-4">Project Title</h3>
-						<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris eget justo sed nisi tincidunt eleifend.</p>
-					</div>
-				))}
+	<!-- Projects Section -->
+	<section class="py-16 px-6 bg-opacity-10" style="background-color: var(--theme-accent-1);">
+		<div class="max-w-6xl mx-auto">
+			<div class="flex justify-center mb-32 md:mb-42">
+				<CardGroup 
+					cards={[
+						{ id: "project1", rotate: 7 },
+						{ id: "project2", rotate: -13 },
+						{ id: "project3", rotate: 19 },
+						{ id: "project4" }
+					]}
+					client:load
+				/>
 			</div>
-		</div>
-	</section>
-
-	<section class="py-24 px-6">
-		<div class="max-w-4xl mx-auto">
-			<h2 class="text-3xl md:text-4xl font-heading mb-8">Contact</h2>
-			<div class="space-y-6 text-lg">
-				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris eget justo sed nisi tincidunt eleifend. Nullam eget felis euismod, euismod nisl eget, tincidunt nisi.</p>
-				<div class="flex gap-4 justify-center md:justify-start">
-					{['GitHub', 'LinkedIn', 'Twitter', 'Email'].map((platform) => (
-						<div class="px-4 py-2 rounded" style="background-color: var(--theme-accent-2);">
-							{platform}
-						</div>
-					))}
-				</div>
-			</div>
+			<h2 class="text-5xl md:text-[64px] font-heading text-center">PROJECTS</h2>
 		</div>
 	</section>
 </Layout>

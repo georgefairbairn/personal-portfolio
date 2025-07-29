@@ -5,6 +5,7 @@ export default {
     extend: {
       fontFamily: {
         'hero': ['"Bungee Shade"', 'cursive'],
+        'heading': ['"Squada One"', 'cursive'],
       },
     },
   },
