@@ -10,6 +10,9 @@ interface CardProps {
   useGridLayout?: boolean;
   children?: React.ReactNode;
   hoverText?: string;
+  backTitle?: string;
+  backSubtitle?: string;
+  isGroupHovered?: boolean;
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -21,12 +24,27 @@ export const Card: React.FC<CardProps> = ({
   expanded = false,
   useGridLayout = false,
   children,
-  hoverText
+  hoverText,
+  backTitle,
+  backSubtitle,
+  isGroupHovered
 }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [isSmallMobile, setIsSmallMobile] = useState(false);
   const [screenWidth, setScreenWidth] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsFlipped((prev) => !prev);
+  };
+
+  useEffect(() => {
+    if (isGroupHovered === false) {
+      setIsFlipped(false);
+    }
+  }, [isGroupHovered]);
 
   // Check if device is mobile and how small
   useEffect(() => {
@@ -183,27 +201,64 @@ export const Card: React.FC<CardProps> = ({
           zIndex: zIndex,
           transitionDelay: transitionDelay,
           transition: 'transform 0.5s',
-          width: `${cardWidth}px` // Set width to match card
+          width: `${cardWidth}px`, // Set width to match card
+          perspective: '1000px'
         }}
       >
-        {/* The card itself */}
+        {/* The card itself (flip wrapper with front/back faces) */}
         <div
-          className={`${borderRadius} bg-white flex items-center justify-center transform duration-500 transition-all hover:scale-105 ${cardClassName}`}
+          className={`relative ${cardClassName} cursor-pointer transform duration-500 transition-all`}
           style={{
-            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
             width: `${cardWidth}px`,
-            height: `${cardHeight}px`
+            height: `${cardHeight}px`,
+            transformStyle: 'preserve-3d',
+            transition: 'transform 0.5s ease',
+            willChange: 'transform',
+            transform: `${isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'}${!isMobile ? (isHovered ? ' scale(1.05)' : ' scale(1)') : ''}`
           }}
+          onClick={handleCardClick}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
-          {image ? (
-            <img 
-              src={image}
-              alt={alt || "Card image"}
-              className={`${imageSize} object-contain`}
-            />
-          ) : children}
+          {/* Front face */}
+          <div
+            className={`${borderRadius} bg-white absolute inset-0 flex items-center justify-center`}
+            style={{
+              boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+              backfaceVisibility: 'hidden'
+            }}
+          >
+            {image ? (
+              <img 
+                src={image}
+                alt={alt || "Card image"}
+                className={`${imageSize} object-contain`}
+              />
+            ) : children}
+          </div>
+
+          {/* Back face */}
+          <div
+            className={`${borderRadius} bg-white absolute inset-0 flex items-center justify-center`}
+            style={{
+              boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+              backfaceVisibility: 'hidden',
+              transform: 'rotateY(180deg)'
+            }}
+          >
+            <div className="flex flex-col items-center justify-center text-center px-3">
+              {backTitle && (
+                <div className={`font-heading uppercase ${isSmallMobile ? 'text-sm' : isMobile ? 'text-base' : 'text-xl'}`}>
+                  {backTitle}
+                </div>
+              )}
+              {backSubtitle && (
+                <div className={`${isSmallMobile ? 'text-xs' : isMobile ? 'text-sm' : 'text-base'} opacity-70 mt-1`}>
+                  {backSubtitle}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
         
         {/* Text positioned below each card - only visible when expanded or hovered */}

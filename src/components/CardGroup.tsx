@@ -8,6 +8,8 @@ export interface CardItem {
   rotate?: number;
   children?: React.ReactNode;
   hoverText?: string;
+  backTitle?: string;
+  backSubtitle?: string;
 }
 
 interface CardGroupProps {
@@ -19,6 +21,7 @@ export const CardGroup: React.FC<CardGroupProps> = ({ cards }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [isSmallMobile, setIsSmallMobile] = useState(false);
   const [autoTriggered, setAutoTriggered] = useState(false);
+  const [isGroupHovered, setIsGroupHovered] = useState(false);
   const groupRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
@@ -100,9 +103,9 @@ export const CardGroup: React.FC<CardGroupProps> = ({ cards }) => {
     }
   };
 
-  // Calculate height for grid layout
+  // Calculate height for grid layout (mobile only)
   const calculateGridHeight = () => {
-    if (!isMobile) return 250; // Desktop height
+    if (!isMobile) return 0; 
     
     // For mobile grid layout
     if (!isExpanded) return 140; // Initial collapsed height (reduced)
@@ -128,25 +131,33 @@ export const CardGroup: React.FC<CardGroupProps> = ({ cards }) => {
     <div 
       ref={groupRef}
       onClick={handleClick}
-      className={`relative w-full overflow-visible cursor-pointer transition-all duration-700 ${!isMobile ? 'group' : ''} flex justify-center`}
-      style={{ height: `${gridHeight}px` }}
+      onMouseEnter={() => setIsGroupHovered(true)}
+      onMouseLeave={() => setIsGroupHovered(false)}
+      className={`relative w-full overflow-visible transition-all duration-700 group flex justify-center md:h-[480px]`}
+      style={{ height: isMobile ? `${gridHeight}px` : undefined }}
     >
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full flex justify-center">
-        {cards.map((card, index) => (
-          <Card
-            key={card.id}
-            index={index}
-            image={card.image}
-            alt={card.alt}
-            rotate={card.rotate}
-            totalCards={cards.length}
-            expanded={isMobile && isExpanded}
-            useGridLayout={isMobile}
-            hoverText={card.hoverText}
-          >
-            {card.children}
-          </Card>
-        ))}
+      {/* Full width/height interactive area to prevent hover flicker between gaps */}
+      <div className="relative h-full w-full md:overflow-visible">
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full flex justify-center">
+          {cards.map((card, index) => (
+            <Card
+              key={card.id}
+              index={index}
+              image={card.image}
+              alt={card.alt}
+              rotate={card.rotate}
+              totalCards={cards.length}
+              expanded={isMobile && isExpanded}
+              useGridLayout={isMobile}
+              hoverText={card.hoverText}
+              backTitle={card.backTitle}
+              backSubtitle={card.backSubtitle}
+              isGroupHovered={isGroupHovered}
+            >
+              {card.children}
+            </Card>
+          ))}
+        </div>
       </div>
     </div>
   );
