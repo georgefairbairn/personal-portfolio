@@ -41,10 +41,10 @@ export const Card: React.FC<CardProps> = ({
   };
 
   useEffect(() => {
-    if (isGroupHovered === false) {
+    if (!useGridLayout && isGroupHovered === false) {
       setIsFlipped(false);
     }
-  }, [isGroupHovered]);
+  }, [isGroupHovered, useGridLayout]);
 
   // Check if device is mobile and how small
   useEffect(() => {
@@ -188,11 +188,13 @@ export const Card: React.FC<CardProps> = ({
 
   return (
     <>
-      <style>
-        {`.group:hover .${cardClassName}-container {
-          transform: translateX(${expandedTranslate()}px) rotate(0deg) !important;
-        }`}
-      </style>
+      {!useGridLayout && (
+        <style>
+          {`.group:hover .${cardClassName}-container {
+            transform: translateX(${expandedTranslate()}px) rotate(0deg) !important;
+          }`}
+        </style>
+      )}
       {/* Container for card and its text */}
       <div 
         className={`absolute ${cardClassName}-container`}

@@ -98,8 +98,8 @@ export const CardGroup: React.FC<CardGroupProps> = ({ cards }) => {
   
   // Handle manual tap/click to toggle expanded state
   const handleClick = () => {
-    if (isMobile) {
-      setIsExpanded(!isExpanded);
+    if (isMobile && !isExpanded) {
+      setIsExpanded(true);
     }
   };
 
