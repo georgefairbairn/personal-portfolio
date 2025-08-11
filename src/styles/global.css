@@ -5,3 +5,13 @@
   --font-hero: "Bungee Shade", cursive;
   --font-heading: "Squada One", cursive;
 }
+
+/* Hide scrollbar for the snapping main container while keeping scroll */
+main::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+}
+main {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}

@@ -9,7 +9,7 @@ import { CardGroup } from "../components/CardGroup";
 
 <Layout title="Portfolio">
 	<!-- Hero Section -->
-	<div class="flex flex-col items-center justify-center h-screen relative">
+	<div class="flex flex-col items-center justify-center h-screen relative snap-start">
 		<div class="max-w-[80%] mx-auto">
 			<div class="flex flex-col md:flex-row items-center justify-center gap-6">
 				<!-- Container for positioning with height that accounts for image -->
@@ -66,9 +66,9 @@ import { CardGroup } from "../components/CardGroup";
 	</div>
 
 	<!-- Career Section -->
-	<section class="py-16 px-6">
-		<div class="max-w-6xl mx-auto">
-			<div class="flex justify-center mb-32 md:mb-42">
+	<section id="career" class="h-screen snap-start px-6">
+		<div class="max-w-6xl mx-auto h-full flex flex-col items-center md:justify-center justify-between gap-4 md:gap-5 py-4">
+			<div class="flex items-center justify-center overflow-visible w-full">
 				<CardGroup 
 					cards={[
 						{
@@ -110,14 +110,14 @@ import { CardGroup } from "../components/CardGroup";
 					client:load
 				/>
 			</div>
-			<h2 class="text-5xl md:text-[64px] font-heading text-center">CAREER</h2>
+			<h2 class="text-4xl md:text-[56px] font-heading text-center">CAREER</h2>
 		</div>
 	</section>
 
 	<!-- Projects Section -->
-	<section class="py-16 px-6 bg-opacity-10" style="background-color: var(--theme-accent-1);">
-		<div class="max-w-6xl mx-auto">
-			<div class="flex justify-center mb-32 md:mb-42">
+	<section id="projects" class="h-screen snap-start px-6 bg-opacity-10" style="background-color: var(--theme-accent-1);">
+		<div class="max-w-6xl mx-auto h-full flex flex-col items-center md:justify-center justify-between gap-4 md:gap-5 py-4">
+			<div class="flex items-center justify-center overflow-visible w-full">
 				<CardGroup 
 					cards={[
 						{ id: "project1", rotate: 7 },
@@ -128,7 +128,7 @@ import { CardGroup } from "../components/CardGroup";
 					client:load
 				/>
 			</div>
-			<h2 class="text-5xl md:text-[64px] font-heading text-center">PROJECTS</h2>
+			<h2 class="text-4xl md:text-[56px] font-heading text-center">PROJECTS</h2>
 		</div>
 	</section>
 </Layout>

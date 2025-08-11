@@ -46,42 +46,88 @@ export const CardGroup: React.FC<CardGroupProps> = ({ cards }) => {
     const rect = element.getBoundingClientRect();
     const windowHeight = window.innerHeight;
     
-    // The center point of the element
     const elementCenter = rect.top + rect.height / 2;
-    
-    // The center point of the viewport
     const viewportCenter = windowHeight / 2;
-    
-    // Check if the element's center is near the viewport's center
-    // We consider "middle" to be within 15% of the center
     return Math.abs(elementCenter - viewportCenter) < windowHeight * 0.15;
   };
 
-  // Set up scroll monitoring for middle-of-viewport detection
+  // Auto-expand when the group snaps into view on mobile
   useEffect(() => {
     if (!isMobile || !groupRef.current || autoTriggered) return;
 
-    const handleScroll = () => {
-      if (groupRef.current && isElementInMiddleOfViewport(groupRef.current)) {
-        setTimeout(() => {
-          setIsExpanded(true);
-          setAutoTriggered(true);
-        }, 300);
-        
-        // Remove scroll listener once triggered
-        window.removeEventListener('scroll', handleScroll);
+    const rootElement = document.querySelector('main');
+
+    let rafId: number | null = null;
+    let cleanedUp = false;
+
+    const triggerExpand = () => {
+      if (cleanedUp) return;
+      setIsExpanded(true);
+      setAutoTriggered(true);
+      cleanup();
+    };
+
+    const tryTrigger = () => {
+      if (!groupRef.current) return;
+      if (isElementInMiddleOfViewport(groupRef.current)) {
+        triggerExpand();
       }
     };
 
-    // Check initial position
-    handleScroll();
-    
-    // Add scroll listener
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
+    const onScroll = () => {
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        tryTrigger();
+      });
     };
+
+    const cleanup = () => {
+      cleanedUp = true;
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+        observerRef.current = null;
+      }
+      if (rootElement) {
+        rootElement.removeEventListener('scroll', onScroll as EventListener);
+      }
+      window.removeEventListener('resize', tryTrigger);
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+    };
+
+    // IntersectionObserver on the snapping container for reliable iOS behavior
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting && entry.intersectionRatio > 0.2) {
+              // slight delay to allow snap to settle
+              setTimeout(triggerExpand, 120);
+            }
+          });
+        },
+        { root: (rootElement as Element) || null, threshold: [0.2, 0.4, 0.6], rootMargin: '0px 0px -20% 0px' }
+      );
+
+      if (groupRef.current) {
+        observer.observe(groupRef.current);
+        observerRef.current = observer;
+      }
+    }
+
+    // Fallback: listen to scroll and resize to detect when centered
+    if (rootElement) {
+      rootElement.addEventListener('scroll', onScroll as EventListener, { passive: true } as AddEventListenerOptions);
+    }
+    window.addEventListener('resize', tryTrigger);
+
+    // Initial check (in case already centered after snap on mount)
+    setTimeout(tryTrigger, 50);
+
+    return cleanup;
   }, [isMobile, autoTriggered]);
   
   // Reset expanded state if switching between mobile and desktop
@@ -89,40 +135,38 @@ export const CardGroup: React.FC<CardGroupProps> = ({ cards }) => {
     setIsExpanded(false);
     setAutoTriggered(false);
     
-    // Clean up previous observer if it exists
     if (observerRef.current) {
       observerRef.current.disconnect();
       observerRef.current = null;
     }
   }, [isMobile]);
   
-  // Handle manual tap/click to toggle expanded state
   const handleClick = () => {
     if (isMobile && !isExpanded) {
       setIsExpanded(true);
     }
   };
 
-  // Calculate height for grid layout (mobile only)
+  // Calculate height for grid layout (mobile only), clamped to viewport so title is visible
   const calculateGridHeight = () => {
     if (!isMobile) return 0; 
-    
-    // For mobile grid layout
-    if (!isExpanded) return 140; // Initial collapsed height (reduced)
-    
-    // Define base card size and spacing
-    const baseCardSize = isSmallMobile ? 95 : 115; // Increased to match Card.tsx
-    const textHeight = 40; // Increased height for text
-    const verticalSpacing = isSmallMobile ? 70 : 90; // Further reduced vertical spacing
-    
-    // For a 2x2 grid of 4 cards
-    // First row height + vertical spacing + second row height
-    const totalHeight = (baseCardSize + textHeight) + verticalSpacing + (baseCardSize + textHeight);
-    
-    // Add extra padding at the bottom
-    const bottomPadding = 40;
-    
-    return totalHeight + bottomPadding;
+
+    // Desired grid height based on card sizing
+    const baseCardSize = isSmallMobile ? 95 : 115;
+    const textHeight = 40;
+    const verticalSpacing = isSmallMobile ? 70 : 90;
+    const desiredExpandedHeight = (baseCardSize + textHeight) + verticalSpacing + (baseCardSize + textHeight) + 40; // +bottom padding
+
+    if (!isExpanded) {
+      return Math.min(140, desiredExpandedHeight); // collapsed height
+    }
+
+    // Reserve space for section title and some breathing room
+    const reservedHeaderHeight = isSmallMobile ? 120 : 140;
+    const verticalPadding = 32; // padding/margins in section
+    const available = Math.max(160, window.innerHeight - reservedHeaderHeight - verticalPadding);
+
+    return Math.min(desiredExpandedHeight, available);
   };
 
   const gridHeight = calculateGridHeight();
@@ -133,10 +177,9 @@ export const CardGroup: React.FC<CardGroupProps> = ({ cards }) => {
       onClick={handleClick}
       onMouseEnter={() => setIsGroupHovered(true)}
       onMouseLeave={() => setIsGroupHovered(false)}
-      className={`relative w-full overflow-visible transition-all duration-700 group flex justify-center md:h-[480px]`}
+      className={`relative w-full overflow-visible transition-all duration-700 group flex justify-center md:h-[480px] mb-6 md:mb-0`}
       style={{ height: isMobile ? `${gridHeight}px` : undefined }}
     >
-      {/* Full width/height interactive area to prevent hover flicker between gaps */}
       <div className="relative h-full w-full md:overflow-visible">
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full flex justify-center">
           {cards.map((card, index) => (
