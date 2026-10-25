@@ -34,7 +34,6 @@ interface CardProps {
   backTitle?: string;
   backSubtitle?: string;
   href?: string;
-  linkText?: string;
   isGroupHovered?: boolean;
 }
 
@@ -51,7 +50,6 @@ export const Card: React.FC<CardProps> = ({
   backTitle,
   backSubtitle,
   href,
-  linkText,
   isGroupHovered
 }) => {
   const [isMobile, setIsMobile] = useState(false);
@@ -62,7 +60,8 @@ export const Card: React.FC<CardProps> = ({
 
   const handleCardClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsFlipped((prev) => !prev);
+    // Linked cards navigate instead of flipping
+    if (!href) setIsFlipped((prev) => !prev);
   };
 
   useEffect(() => {
@@ -149,6 +148,8 @@ export const Card: React.FC<CardProps> = ({
   
   const { width: cardWidth, height: cardHeight } = getCardSize();
 
+  const CardWrapper = href ? 'a' : 'div';
+
   // Calculate transform based on expanded state and layout type
   let cardTransform;
   
@@ -204,9 +205,10 @@ export const Card: React.FC<CardProps> = ({
           perspective: '1000px'
         }}
       >
-        {/* The card itself (flip wrapper with front/back faces) */}
-        <div
-          className={`relative ${cardClassName} cursor-pointer transform duration-500 transition-all`}
+        {/* The card itself (flip wrapper with front/back faces) - a link when href is set */}
+        <CardWrapper
+          {...(href ? { href, target: '_blank', rel: 'noopener noreferrer' } : {})}
+          className={`relative block ${cardClassName} cursor-pointer transform duration-500 transition-all`}
           style={{
             width: `${cardWidth}px`,
             height: `${cardHeight}px`,
@@ -256,21 +258,9 @@ export const Card: React.FC<CardProps> = ({
                   {backSubtitle}
                 </div>
               )}
-              {href && (
-                <a
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  tabIndex={isFlipped ? 0 : -1}
-                  className={`font-heading uppercase underline underline-offset-4 ${isSmallMobile ? 'text-sm mt-2' : isMobile ? 'text-base mt-2' : 'text-lg mt-3'}`}
-                >
-                  {linkText || 'View'}
-                </a>
-              )}
             </div>
           </div>
-        </div>
+        </CardWrapper>
         
         {/* Text positioned below each card - only visible when expanded or hovered */}
         {hoverText && (

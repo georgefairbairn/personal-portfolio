@@ -11,7 +11,6 @@ export interface CardItem {
   backTitle?: string;
   backSubtitle?: string;
   href?: string;
-  linkText?: string;
 }
 
 interface CardGroupProps {
@@ -195,7 +194,6 @@ export const CardGroup: React.FC<CardGroupProps> = ({ cards }) => {
               backTitle={card.backTitle}
               backSubtitle={card.backSubtitle}
               href={card.href}
-              linkText={card.linkText}
               isGroupHovered={isGroupHovered}
             >
               {card.children}
