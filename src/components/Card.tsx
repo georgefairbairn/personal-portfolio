@@ -1,5 +1,26 @@
 import React, { useEffect, useState } from 'react';
 
+// Mobile card size - percentage of screen width, clamped
+export const getMobileCardSize = (screenWidth: number) => {
+  const isSmallMobile = screenWidth <= 480;
+  const screenPercentage = isSmallMobile ? 0.45 : 0.48;
+  const minSize = isSmallMobile ? 80 : 95;
+  return Math.min(150, Math.max(minSize, Math.floor(screenWidth * screenPercentage)));
+};
+
+// Mobile grid layout shared by Card (positioning) and CardGroup (container height)
+export const getMobileGridMetrics = (screenWidth: number, totalCards: number) => {
+  const isSmallMobile = screenWidth <= 480;
+  const cardSize = getMobileCardSize(screenWidth);
+  const horizontalSpacing = isSmallMobile ? 12 : 20;
+  const verticalSpacing = isSmallMobile ? 70 : 90; // room for the label under each card
+  const labelHeight = isSmallMobile ? 28 : 32; // label line-height + top margin
+  const cols = Math.min(2, totalCards);
+  const rows = Math.ceil(totalCards / cols);
+  const height = cardSize * rows + verticalSpacing * (rows - 1) + labelHeight;
+  return { cardSize, horizontalSpacing, verticalSpacing, cols, rows, height };
+};
+
 interface CardProps {
   index: number;
   image?: string;
@@ -12,7 +33,9 @@ interface CardProps {
   hoverText?: string;
   backTitle?: string;
   backSubtitle?: string;
+  href?: string;
   isGroupHovered?: boolean;
+  screenWidth: number;
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -27,15 +50,24 @@ export const Card: React.FC<CardProps> = ({
   hoverText,
   backTitle,
   backSubtitle,
-  isGroupHovered
+  href,
+  isGroupHovered,
+  screenWidth
 }) => {
-  const [isMobile, setIsMobile] = useState(false);
-  const [isSmallMobile, setIsSmallMobile] = useState(false);
-  const [screenWidth, setScreenWidth] = useState(0);
+  const isMobile = screenWidth > 0 && screenWidth <= 768;
+  const isSmallMobile = screenWidth > 0 && screenWidth <= 480;
   const [isHovered, setIsHovered] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
 
   const handleCardClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Linked cards navigate instead of flipping
+    if (!href) setIsFlipped((prev) => !prev);
+  };
+
+  const handleCardKeyDown = (e: React.KeyboardEvent) => {
+    if (href || (e.key !== 'Enter' && e.key !== ' ')) return;
+    e.preventDefault();
     e.stopPropagation();
     setIsFlipped((prev) => !prev);
   };
@@ -45,23 +77,6 @@ export const Card: React.FC<CardProps> = ({
       setIsFlipped(false);
     }
   }, [isGroupHovered, useGridLayout]);
-
-  // Check if device is mobile and how small
-  useEffect(() => {
-    const checkScreenSize = () => {
-      const width = window.innerWidth;
-      setScreenWidth(width);
-      setIsMobile(width <= 768);
-      setIsSmallMobile(width <= 480);
-    };
-    
-    checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-    
-    return () => {
-      window.removeEventListener('resize', checkScreenSize);
-    };
-  }, []);
 
   // Calculate initial translate value for overlap effect
   const initialTranslate = () => {
@@ -94,49 +109,22 @@ export const Card: React.FC<CardProps> = ({
       return { width: 200, height: 200 };
     }
 
-    // For mobile - calculate based on screen width with more reasonable padding
-    // Use percentage-based sizing for a more balanced approach
-    const screenPercentage = isSmallMobile ? 0.45 : 0.48; // Increased percentage for wider cards
-    
-    // Calculate width based on percentage, ensuring we don't get too large
-    let cardWidth = Math.floor(screenWidth * screenPercentage);
-    
-    // Add some reasonable limits
-    const maxSize = 150; // Increased maximum card size on mobile
-    const minSize = isSmallMobile ? 80 : 95; // Slightly increased minimum card size
-    
-    cardWidth = Math.min(maxSize, Math.max(minSize, cardWidth));
-    
-    return {
-      width: cardWidth,
-      height: cardWidth // Keep it square
-    };
+    const cardWidth = getMobileCardSize(screenWidth);
+    return { width: cardWidth, height: cardWidth };
   };
 
   // Calculate grid layout position (mobile)
+  // Each card container's top sits on the group's vertical centre line, so
+  // y is the offset of the card's top edge from that line
   const gridPosition = () => {
-    const { width: cardSize, height: cardHeight } = getCardSize();
-    
-    // Use more spacing for better visibility
-    const horizontalSpacing = isSmallMobile ? 12 : 20;
-    const verticalSpacing = isSmallMobile ? 70 : 90; // Further reduced vertical spacing (matching CardGroup)
-    
-    // Calculate rows and columns based on total cards
-    // For 4 cards, we want a 2x2 grid
-    const cols = Math.min(2, totalCards);
-    const rows = Math.ceil(totalCards / cols);
-    
+    const { cardSize, horizontalSpacing, verticalSpacing, cols, height } = getMobileGridMetrics(screenWidth, totalCards);
     const row = Math.floor(index / cols);
     const col = index % cols;
-    
-    // Calculate total dimensions of the grid
     const gridWidth = cardSize * cols + horizontalSpacing * (cols - 1);
-    const gridHeight = cardHeight * rows + verticalSpacing * (rows - 1);
-    
-    // Center the grid and calculate positions within it
+
     const xPos = (col * (cardSize + horizontalSpacing)) - (gridWidth / 2) + (cardSize / 2);
-    const yPos = (row * (cardHeight + verticalSpacing)) - (gridHeight / 2) + (cardHeight / 2);
-    
+    const yPos = (row * (cardSize + verticalSpacing)) - (height / 2);
+
     return { x: xPos, y: yPos };
   };
 
@@ -149,6 +137,10 @@ export const Card: React.FC<CardProps> = ({
   // Create dynamic class name for this specific card
   const cardClassName = `card-${index}`;
   
+  const { width: cardWidth, height: cardHeight } = getCardSize();
+
+  const CardWrapper = href ? 'a' : 'div';
+
   // Calculate transform based on expanded state and layout type
   let cardTransform;
   
@@ -160,7 +152,7 @@ export const Card: React.FC<CardProps> = ({
     } else {
       // For stacked cards, use less rotation on mobile for better appearance
       const mobileRotate = rotate * 0.6;
-      cardTransform = `translateX(${initialTranslate()}px) rotate(${isMobile ? mobileRotate : rotate}deg)`;
+      cardTransform = `translate(${initialTranslate()}px, ${-cardHeight / 2}px) rotate(${isMobile ? mobileRotate : rotate}deg)`;
     }
   } else {
     // Desktop horizontal layout
@@ -169,9 +161,6 @@ export const Card: React.FC<CardProps> = ({
       : `translateX(${initialTranslate()}px) rotate(${rotate}deg)`;
   }
 
-  // Get card size dimensions
-  const { width: cardWidth, height: cardHeight } = getCardSize();
-  
   // Card and image sizes based on screen size
   let imageSize, borderRadius;
   
@@ -188,17 +177,12 @@ export const Card: React.FC<CardProps> = ({
 
   return (
     <>
-      {!useGridLayout && (
-        <style>
-          {`.group:hover .${cardClassName}-container {
-            transform: translateX(${expandedTranslate()}px) rotate(0deg) !important;
-          }`}
-        </style>
-      )}
       {/* Container for card and its text */}
       <div 
-        className={`absolute ${cardClassName}-container`}
+        className={`absolute ${cardClassName}-container ${useGridLayout ? '' : 'card-fan'}`}
         style={{
+          // Desktop fan-out position, applied by .card-fan rules in global.css
+          ['--expanded-x' as string]: `${expandedTranslate()}px`,
           transform: cardTransform,
           zIndex: zIndex,
           transitionDelay: transitionDelay,
@@ -207,9 +191,12 @@ export const Card: React.FC<CardProps> = ({
           perspective: '1000px'
         }}
       >
-        {/* The card itself (flip wrapper with front/back faces) */}
-        <div
-          className={`relative ${cardClassName} cursor-pointer transform duration-500 transition-all`}
+        {/* The card itself (flip wrapper with front/back faces) - a link when href is set */}
+        <CardWrapper
+          {...(href
+            ? { href, target: '_blank', rel: 'noopener noreferrer' }
+            : { role: 'button', tabIndex: 0, 'aria-pressed': isFlipped, onKeyDown: handleCardKeyDown })}
+          className={`relative block ${cardClassName} ${borderRadius} cursor-pointer transform duration-500 transition-all focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current`}
           style={{
             width: `${cardWidth}px`,
             height: `${cardHeight}px`,
@@ -221,6 +208,8 @@ export const Card: React.FC<CardProps> = ({
           onClick={handleCardClick}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
+          onFocus={() => setIsHovered(true)}
+          onBlur={() => setIsHovered(false)}
         >
           {/* Front face */}
           <div
@@ -261,7 +250,7 @@ export const Card: React.FC<CardProps> = ({
               )}
             </div>
           </div>
-        </div>
+        </CardWrapper>
         
         {/* Text positioned below each card - only visible when expanded or hovered */}
         {hoverText && (
