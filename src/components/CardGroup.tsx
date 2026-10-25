@@ -19,6 +19,7 @@ interface CardGroupProps {
 
 export const CardGroup: React.FC<CardGroupProps> = ({ cards }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [screenWidth, setScreenWidth] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [isSmallMobile, setIsSmallMobile] = useState(false);
   const [autoTriggered, setAutoTriggered] = useState(false);
@@ -30,6 +31,7 @@ export const CardGroup: React.FC<CardGroupProps> = ({ cards }) => {
   useEffect(() => {
     const checkScreenSize = () => {
       const width = window.innerWidth;
+      setScreenWidth(width);
       setIsMobile(width <= 768);
       setIsSmallMobile(width <= 480);
     };
@@ -152,7 +154,6 @@ export const CardGroup: React.FC<CardGroupProps> = ({ cards }) => {
   const calculateGridHeight = () => {
     if (!isMobile) return 0;
 
-    const screenWidth = window.innerWidth;
     const { cardSize, height } = getMobileGridMetrics(screenWidth, cards.length);
 
     if (!isExpanded) {
@@ -195,6 +196,7 @@ export const CardGroup: React.FC<CardGroupProps> = ({ cards }) => {
               backSubtitle={card.backSubtitle}
               href={card.href}
               isGroupHovered={isGroupHovered}
+              screenWidth={screenWidth}
             >
               {card.children}
             </Card>

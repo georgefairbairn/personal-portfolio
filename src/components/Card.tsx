@@ -35,6 +35,7 @@ interface CardProps {
   backSubtitle?: string;
   href?: string;
   isGroupHovered?: boolean;
+  screenWidth: number;
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -50,11 +51,11 @@ export const Card: React.FC<CardProps> = ({
   backTitle,
   backSubtitle,
   href,
-  isGroupHovered
+  isGroupHovered,
+  screenWidth
 }) => {
-  const [isMobile, setIsMobile] = useState(false);
-  const [isSmallMobile, setIsSmallMobile] = useState(false);
-  const [screenWidth, setScreenWidth] = useState(0);
+  const isMobile = screenWidth > 0 && screenWidth <= 768;
+  const isSmallMobile = screenWidth > 0 && screenWidth <= 480;
   const [isHovered, setIsHovered] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
 
@@ -64,28 +65,18 @@ export const Card: React.FC<CardProps> = ({
     if (!href) setIsFlipped((prev) => !prev);
   };
 
+  const handleCardKeyDown = (e: React.KeyboardEvent) => {
+    if (href || (e.key !== 'Enter' && e.key !== ' ')) return;
+    e.preventDefault();
+    e.stopPropagation();
+    setIsFlipped((prev) => !prev);
+  };
+
   useEffect(() => {
     if (!useGridLayout && isGroupHovered === false) {
       setIsFlipped(false);
     }
   }, [isGroupHovered, useGridLayout]);
-
-  // Check if device is mobile and how small
-  useEffect(() => {
-    const checkScreenSize = () => {
-      const width = window.innerWidth;
-      setScreenWidth(width);
-      setIsMobile(width <= 768);
-      setIsSmallMobile(width <= 480);
-    };
-    
-    checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-    
-    return () => {
-      window.removeEventListener('resize', checkScreenSize);
-    };
-  }, []);
 
   // Calculate initial translate value for overlap effect
   const initialTranslate = () => {
@@ -186,17 +177,12 @@ export const Card: React.FC<CardProps> = ({
 
   return (
     <>
-      {!useGridLayout && (
-        <style>
-          {`.group:hover .${cardClassName}-container {
-            transform: translateX(${expandedTranslate()}px) rotate(0deg) !important;
-          }`}
-        </style>
-      )}
       {/* Container for card and its text */}
       <div 
-        className={`absolute ${cardClassName}-container`}
+        className={`absolute ${cardClassName}-container ${useGridLayout ? '' : 'card-fan'}`}
         style={{
+          // Desktop fan-out position, applied by .card-fan rules in global.css
+          ['--expanded-x' as string]: `${expandedTranslate()}px`,
           transform: cardTransform,
           zIndex: zIndex,
           transitionDelay: transitionDelay,
@@ -207,8 +193,10 @@ export const Card: React.FC<CardProps> = ({
       >
         {/* The card itself (flip wrapper with front/back faces) - a link when href is set */}
         <CardWrapper
-          {...(href ? { href, target: '_blank', rel: 'noopener noreferrer' } : {})}
-          className={`relative block ${cardClassName} cursor-pointer transform duration-500 transition-all`}
+          {...(href
+            ? { href, target: '_blank', rel: 'noopener noreferrer' }
+            : { role: 'button', tabIndex: 0, 'aria-pressed': isFlipped, onKeyDown: handleCardKeyDown })}
+          className={`relative block ${cardClassName} ${borderRadius} cursor-pointer transform duration-500 transition-all focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current`}
           style={{
             width: `${cardWidth}px`,
             height: `${cardHeight}px`,
@@ -220,6 +208,8 @@ export const Card: React.FC<CardProps> = ({
           onClick={handleCardClick}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
+          onFocus={() => setIsHovered(true)}
+          onBlur={() => setIsHovered(false)}
         >
           {/* Front face */}
           <div

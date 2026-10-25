@@ -1,9 +1,14 @@
 ---
 interface Props {
 	title: string;
+	description?: string;
 }
 
-const { title } = Astro.props;
+const {
+	title,
+	description = "George Fairbairn – Senior Frontend Engineer at Slack. Career history and side projects.",
+} = Astro.props;
+const shareImage = "https://res.cloudinary.com/neon-flights/image/upload/c_crop,g_south,h_0.9/c_pad,w_1200,h_630,b_rgb:ddd6fe/f_auto,q_auto/v1753641264/personal-website/profilepiccolor_g4p5t3.png";
 import "../styles/global.css";
 import ThemeIcon from "../components/ThemeIcon";
 ---
@@ -14,7 +19,7 @@ import ThemeIcon from "../components/ThemeIcon";
 		<link rel="icon" type="image/png" sizes="32x32" href="https://res.cloudinary.com/neon-flights/image/upload/c_crop,g_south,h_0.9/c_fill,w_32,h_32/v1753641264/personal-website/profilepiccolor_g4p5t3.png" />
 		<link rel="icon" type="image/png" sizes="16x16" href="https://res.cloudinary.com/neon-flights/image/upload/c_crop,g_south,h_0.9/c_fill,w_16,h_16/v1753641264/personal-website/profilepiccolor_g4p5t3.png" />
 		<link rel="apple-touch-icon" sizes="180x180" href="https://res.cloudinary.com/neon-flights/image/upload/c_crop,g_south,h_0.9/c_fill,w_180,h_180/v1753641264/personal-website/profilepiccolor_g4p5t3.png" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="generator" content={Astro.generator} />
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,6 +31,21 @@ import ThemeIcon from "../components/ThemeIcon";
 			}
 		</style>
 		<title>{title}</title>
+		<meta name="description" content={description} />
+		<meta property="og:type" content="website" />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content={shareImage} />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta name="twitter:card" content="summary_large_image" />
+		<!-- Apply saved theme before first paint to avoid a flash of the default theme -->
+		<script is:inline>
+			try {
+				const savedTheme = localStorage.getItem('theme');
+				if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+			} catch {}
+		</script>
 	</head>
 	<body style="background-color: var(--theme-bg); color: var(--theme-text); transition: background-color 0.3s ease, color 0.3s ease;">
 		<div class="fixed top-4 right-4 z-50">
@@ -35,12 +55,5 @@ import ThemeIcon from "../components/ThemeIcon";
 			<slot />
 		</main>
 
-		<script>
-			// Initialize theme from localStorage on page load
-			document.addEventListener('DOMContentLoaded', () => {
-				const savedTheme = localStorage.getItem('theme') || 'violet';
-				document.documentElement.setAttribute('data-theme', savedTheme);
-			});
-		</script>
 	</body>
 </html> 

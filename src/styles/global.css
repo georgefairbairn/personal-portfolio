@@ -15,3 +15,20 @@ main {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
+
+/* Desktop card fan-out on hover or keyboard focus (see Card.tsx --expanded-x) */
+.group:hover .card-fan,
+.group:focus-within .card-fan {
+  transform: translateX(var(--expanded-x)) rotate(0deg) !important;
+}
+
+/* Honour the OS "Reduce Motion" setting for CSS-driven motion (Framer animations use MotionConfig) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+}
