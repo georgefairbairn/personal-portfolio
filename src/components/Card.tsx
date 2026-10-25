@@ -1,5 +1,26 @@
 import React, { useEffect, useState } from 'react';
 
+// Mobile card size - percentage of screen width, clamped
+export const getMobileCardSize = (screenWidth: number) => {
+  const isSmallMobile = screenWidth <= 480;
+  const screenPercentage = isSmallMobile ? 0.45 : 0.48;
+  const minSize = isSmallMobile ? 80 : 95;
+  return Math.min(150, Math.max(minSize, Math.floor(screenWidth * screenPercentage)));
+};
+
+// Mobile grid layout shared by Card (positioning) and CardGroup (container height)
+export const getMobileGridMetrics = (screenWidth: number, totalCards: number) => {
+  const isSmallMobile = screenWidth <= 480;
+  const cardSize = getMobileCardSize(screenWidth);
+  const horizontalSpacing = isSmallMobile ? 12 : 20;
+  const verticalSpacing = isSmallMobile ? 70 : 90; // room for the label under each card
+  const labelHeight = isSmallMobile ? 28 : 32; // label line-height + top margin
+  const cols = Math.min(2, totalCards);
+  const rows = Math.ceil(totalCards / cols);
+  const height = cardSize * rows + verticalSpacing * (rows - 1) + labelHeight;
+  return { cardSize, horizontalSpacing, verticalSpacing, cols, rows, height };
+};
+
 interface CardProps {
   index: number;
   image?: string;
@@ -12,6 +33,8 @@ interface CardProps {
   hoverText?: string;
   backTitle?: string;
   backSubtitle?: string;
+  href?: string;
+  linkText?: string;
   isGroupHovered?: boolean;
 }
 
@@ -27,6 +50,8 @@ export const Card: React.FC<CardProps> = ({
   hoverText,
   backTitle,
   backSubtitle,
+  href,
+  linkText,
   isGroupHovered
 }) => {
   const [isMobile, setIsMobile] = useState(false);
@@ -94,49 +119,22 @@ export const Card: React.FC<CardProps> = ({
       return { width: 200, height: 200 };
     }
 
-    // For mobile - calculate based on screen width with more reasonable padding
-    // Use percentage-based sizing for a more balanced approach
-    const screenPercentage = isSmallMobile ? 0.45 : 0.48; // Increased percentage for wider cards
-    
-    // Calculate width based on percentage, ensuring we don't get too large
-    let cardWidth = Math.floor(screenWidth * screenPercentage);
-    
-    // Add some reasonable limits
-    const maxSize = 150; // Increased maximum card size on mobile
-    const minSize = isSmallMobile ? 80 : 95; // Slightly increased minimum card size
-    
-    cardWidth = Math.min(maxSize, Math.max(minSize, cardWidth));
-    
-    return {
-      width: cardWidth,
-      height: cardWidth // Keep it square
-    };
+    const cardWidth = getMobileCardSize(screenWidth);
+    return { width: cardWidth, height: cardWidth };
   };
 
   // Calculate grid layout position (mobile)
+  // Each card container's top sits on the group's vertical centre line, so
+  // y is the offset of the card's top edge from that line
   const gridPosition = () => {
-    const { width: cardSize, height: cardHeight } = getCardSize();
-    
-    // Use more spacing for better visibility
-    const horizontalSpacing = isSmallMobile ? 12 : 20;
-    const verticalSpacing = isSmallMobile ? 70 : 90; // Further reduced vertical spacing (matching CardGroup)
-    
-    // Calculate rows and columns based on total cards
-    // For 4 cards, we want a 2x2 grid
-    const cols = Math.min(2, totalCards);
-    const rows = Math.ceil(totalCards / cols);
-    
+    const { cardSize, horizontalSpacing, verticalSpacing, cols, height } = getMobileGridMetrics(screenWidth, totalCards);
     const row = Math.floor(index / cols);
     const col = index % cols;
-    
-    // Calculate total dimensions of the grid
     const gridWidth = cardSize * cols + horizontalSpacing * (cols - 1);
-    const gridHeight = cardHeight * rows + verticalSpacing * (rows - 1);
-    
-    // Center the grid and calculate positions within it
+
     const xPos = (col * (cardSize + horizontalSpacing)) - (gridWidth / 2) + (cardSize / 2);
-    const yPos = (row * (cardHeight + verticalSpacing)) - (gridHeight / 2) + (cardHeight / 2);
-    
+    const yPos = (row * (cardSize + verticalSpacing)) - (height / 2);
+
     return { x: xPos, y: yPos };
   };
 
@@ -149,6 +147,8 @@ export const Card: React.FC<CardProps> = ({
   // Create dynamic class name for this specific card
   const cardClassName = `card-${index}`;
   
+  const { width: cardWidth, height: cardHeight } = getCardSize();
+
   // Calculate transform based on expanded state and layout type
   let cardTransform;
   
@@ -160,7 +160,7 @@ export const Card: React.FC<CardProps> = ({
     } else {
       // For stacked cards, use less rotation on mobile for better appearance
       const mobileRotate = rotate * 0.6;
-      cardTransform = `translateX(${initialTranslate()}px) rotate(${isMobile ? mobileRotate : rotate}deg)`;
+      cardTransform = `translate(${initialTranslate()}px, ${-cardHeight / 2}px) rotate(${isMobile ? mobileRotate : rotate}deg)`;
     }
   } else {
     // Desktop horizontal layout
@@ -169,9 +169,6 @@ export const Card: React.FC<CardProps> = ({
       : `translateX(${initialTranslate()}px) rotate(${rotate}deg)`;
   }
 
-  // Get card size dimensions
-  const { width: cardWidth, height: cardHeight } = getCardSize();
-  
   // Card and image sizes based on screen size
   let imageSize, borderRadius;
   
@@ -258,6 +255,18 @@ export const Card: React.FC<CardProps> = ({
                 <div className={`${isSmallMobile ? 'text-xs' : isMobile ? 'text-sm' : 'text-base'} opacity-70 mt-1`}>
                   {backSubtitle}
                 </div>
+              )}
+              {href && (
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  tabIndex={isFlipped ? 0 : -1}
+                  className={`font-heading uppercase underline underline-offset-4 ${isSmallMobile ? 'text-sm mt-2' : isMobile ? 'text-base mt-2' : 'text-lg mt-3'}`}
+                >
+                  {linkText || 'View'}
+                </a>
               )}
             </div>
           </div>

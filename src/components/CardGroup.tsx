@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Card } from './Card';
+import { Card, getMobileGridMetrics } from './Card';
 
 export interface CardItem {
   id: string;
@@ -10,6 +10,8 @@ export interface CardItem {
   hoverText?: string;
   backTitle?: string;
   backSubtitle?: string;
+  href?: string;
+  linkText?: string;
 }
 
 interface CardGroupProps {
@@ -147,18 +149,15 @@ export const CardGroup: React.FC<CardGroupProps> = ({ cards }) => {
     }
   };
 
-  // Calculate height for grid layout (mobile only), clamped to viewport so title is visible
+  // Height for grid layout (mobile only), clamped to viewport so title is visible
   const calculateGridHeight = () => {
-    if (!isMobile) return 0; 
+    if (!isMobile) return 0;
 
-    // Desired grid height based on card sizing
-    const baseCardSize = isSmallMobile ? 95 : 115;
-    const textHeight = 40;
-    const verticalSpacing = isSmallMobile ? 70 : 90;
-    const desiredExpandedHeight = (baseCardSize + textHeight) + verticalSpacing + (baseCardSize + textHeight) + 40; // +bottom padding
+    const screenWidth = window.innerWidth;
+    const { cardSize, height } = getMobileGridMetrics(screenWidth, cards.length);
 
     if (!isExpanded) {
-      return Math.min(140, desiredExpandedHeight); // collapsed height
+      return cardSize; // collapsed stack
     }
 
     // Reserve space for section title and some breathing room
@@ -166,7 +165,7 @@ export const CardGroup: React.FC<CardGroupProps> = ({ cards }) => {
     const verticalPadding = 32; // padding/margins in section
     const available = Math.max(160, window.innerHeight - reservedHeaderHeight - verticalPadding);
 
-    return Math.min(desiredExpandedHeight, available);
+    return Math.min(height, available);
   };
 
   const gridHeight = calculateGridHeight();
@@ -195,6 +194,8 @@ export const CardGroup: React.FC<CardGroupProps> = ({ cards }) => {
               hoverText={card.hoverText}
               backTitle={card.backTitle}
               backSubtitle={card.backSubtitle}
+              href={card.href}
+              linkText={card.linkText}
               isGroupHovered={isGroupHovered}
             >
               {card.children}

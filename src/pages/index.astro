@@ -9,7 +9,7 @@ import { CardGroup } from "../components/CardGroup";
 
 <Layout title="George Fairbairn – Portfolio">
 	<!-- Hero Section -->
-	<div class="flex flex-col items-center justify-center h-screen relative snap-start">
+	<div class="flex flex-col items-center justify-center h-dvh relative snap-start">
 		<div class="max-w-[80%] mx-auto">
 			<div class="flex flex-col md:flex-row items-center justify-center gap-6">
 				<!-- Container for positioning with height that accounts for image -->
@@ -66,8 +66,8 @@ import { CardGroup } from "../components/CardGroup";
 	</div>
 
 	<!-- Career Section -->
-	<section id="career" class="h-screen snap-start px-6">
-		<div class="max-w-6xl mx-auto h-full flex flex-col items-center md:justify-center justify-between gap-4 md:gap-5 py-4">
+	<section id="career" class="h-dvh snap-start px-6">
+		<div class="max-w-6xl mx-auto h-full flex flex-col items-center justify-center gap-4 md:gap-5 py-4">
 			<div class="flex items-center justify-center overflow-visible w-full">
 				<CardGroup 
 					cards={[
@@ -115,15 +115,21 @@ import { CardGroup } from "../components/CardGroup";
 	</section>
 
 	<!-- Projects Section -->
-	<section id="projects" class="h-screen snap-start px-6 bg-opacity-10" style="background-color: var(--theme-accent-1);">
-		<div class="max-w-6xl mx-auto h-full flex flex-col items-center md:justify-center justify-between gap-4 md:gap-5 py-4">
+	<section id="projects" class="h-dvh snap-start px-6 bg-opacity-10" style="background-color: var(--theme-accent-1);">
+		<div class="max-w-6xl mx-auto h-full flex flex-col items-center justify-center gap-4 md:gap-5 py-4">
 			<div class="flex items-center justify-center overflow-visible w-full">
 				<CardGroup 
 					cards={[
-						{ id: "project1", rotate: 7 },
-						{ id: "project2", rotate: -13 },
-						{ id: "project3", rotate: 19 },
-						{ id: "project4" }
+						{
+							id: "bambino",
+							image: "/projects/bambino.png",
+							alt: "Bambino app icon",
+							hoverText: "Bambino",
+							backTitle: "Baby Name Matcher",
+							backSubtitle: "iOS · 2026",
+							href: "https://apps.apple.com/app/id6773164657",
+							linkText: "App Store"
+						}
 					]}
 					client:load
 				/>
